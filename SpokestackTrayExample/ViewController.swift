@@ -1,47 +1,81 @@
-# spokestack-tray-ios
+//
+//  ViewController.swift
+//  SpokestackTrayExample
+//
+//  Created by Cory D. Wiles on 8/7/20.
+//
 
-A native iOS library for adding Spokestack to any iOS app.
-
-
-## Installation
-
-
-### Edit Podfile
-
-[![](https://img.shields.io/cocoapods/v/SpokestackTray-iOS.svg)](https://cocoapods.org/pods/SpokestackTray-iOS)
-
-[CocoaPods](https://cocoapods.org) is a dependency manager for Cocoa projects. For usage and installation instructions, visit their website. To integrate Spokestack into your Xcode project using CocoaPods, specify it in your Podfile:
-
-`pod 'SpokestackTray-iOS'`
-
-### Edit Info.plist
-
-Add the following to your Info.plist to enable permissions. Also ensure your iOS deployment target is set to 13.0.
-
-_Without these your app will crash_
-
-```
-  <key>NSMicrophoneUsageDescription</key>
-  <string>For making voice requests</string>
-  <key>NSSpeechRecognitionUsageDescription</key>
-  <string>For understanding your voice requests</string>
-```
-
-### Set the AudioSession category
-
-```swift
-        do {
-            let session = AVAudioSession.sharedInstance()
-            try? session.setCategory(.playAndRecord, options: [.defaultToSpeaker, .allowAirPlay, .allowBluetoothA2DP, .allowBluetooth])
-            try? session.setActive(true, options: [])
-        }
-```
-
-## Usage
-
-```swift
+import UIKit
 import SpokestackTray
 import Spokestack
+import SwiftUI
+
+enum IntentResultAmazonType: String {
+    case `repeat` = "AMAZON.RepeatIntent"
+    case yes = "AMAZON.YesIntent"
+    case no = "AMAZON.NoIntent"
+    case stop = "AMAZON.StopIntent"
+    case cancel = "AMAZON.CancelIntent"
+    case fallback = "AMAZON.FallbackIntent"
+    case recipe = "RecipeIntent"
+    case help = "AMAZON.HelpIntent"
+}
+
+extension String {
+    
+    var spstk_ns: NSString {
+        return self as NSString
+    }
+
+    var spstk_color: UIColor {
+
+        let hexString: NSString = self.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines).spstk_ns
+        
+        if hexString.hasPrefix("#") {
+            
+            let hexColorStartIndex: String.Index = self.index(self.startIndex, offsetBy: 1)
+            let hexColor: String = String(self[hexColorStartIndex...])
+            
+            if hexColor.count == 6 {
+                 
+                let scanner: Scanner = Scanner(string: hexColor)
+                var hexNumber: UInt64 = 0
+                let mask = 0x000000FF
+
+                if scanner.scanHexInt64(&hexNumber) {
+
+                    let r = Int(hexNumber >> 16) & mask
+                    let g = Int(hexNumber >> 8) & mask
+                    let b = Int(hexNumber) & mask
+                    
+                    let red   = CGFloat(r) / 255.0
+                    let green = CGFloat(g) / 255.0
+                    let blue  = CGFloat(b) / 255.0
+
+                    return UIColor(red: red, green: green, blue: blue, alpha: 1.0)
+                 }
+             }
+        }
+        
+        return .black
+    }
+}
+
+class ViewController: UIViewController {
+    
+    lazy private var instructionsView: InstructionsView = {
+        return InstructionsView()
+    }()
+    
+    lazy private var hostingController: UIHostingController = {
+        return UIHostingController(rootView: instructionsView)
+    }()
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        
+        super.viewDidDisappear(animated)
+        self.removeHostingController()
+    }
 
     override func viewDidLoad() {
         
@@ -68,8 +102,8 @@ import Spokestack
             NLUModelURLVocabKey: "https://d3dmqd7cy685il.cloudfront.net/nlu/production/shared/XtASJqxkO6UwefOzia-he2gnIMcBnR2UCF-VyaIy-OI/metadata.json"
         ]
         
-        configuration.cliendId = "YOUR_CLIENT_ID"
-        configuration.clientSecret = "YOUR_CLIENT_SECRET"
+        configuration.cliendId = "f7e4a3c5-8468-44a9-917b-64169227caba"
+        configuration.clientSecret = "A5ED55BA8E7BCF553A2DE6822E15AEBCB2A3245739097D135A80D83462072115"
         
         let greeting: IntentResult = IntentResult(node: InterntResultNode.greeting.rawValue, prompt: configuration.greeting)
         var lastNode: IntentResult = greeting
@@ -129,34 +163,20 @@ import Spokestack
         tray.addToParentView()
         tray.listen()
     }
+    
+    private func addHostingController() -> Void {
 
-```
-## Contributing
-
-See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
-
-# Documentation
-
-## Spokestack Functions
-
-These public methods from the SpokestackTray library
-
-### listen
-
-Tell Spokestack to start listening.
-
-This starts the speech pipeline by first checking to make sure that the NLU / Wakeword models have been downloaded and the necessary permissions have been granted before activating the pipeline.
-
-### stopListening
-
-Tell Spokestack to stop listening
-
-### addToParentView
-
-Adds the `SpokestackTrayViewController` to the parent view controller's view
-
-### removeFromParentView
-Stops the speechpipeline and removes the `SpokestackTrayViewController` from the parent view controller's view
-
-
+        self.addChild(self.hostingController)
+        self.hostingController.view.frame = self.view.frame
+        self.view.addSubview(self.hostingController.view)
+        self.hostingController.didMove(toParent: self)
+    }
+    
+    private func removeHostingController() -> Void {
+        
+        self.hostingController.willMove(toParent: nil)
+        self.hostingController.view.removeFromSuperview()
+        self.hostingController.removeFromParent()
+    }
+}
 
