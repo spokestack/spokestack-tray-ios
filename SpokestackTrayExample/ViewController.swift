@@ -63,6 +63,8 @@ extension String {
 
 class ViewController: UIViewController {
     
+    // MARK: Private (properties)
+    
     lazy private var instructionsView: InstructionsView = {
         return InstructionsView()
     }()
@@ -71,12 +73,8 @@ class ViewController: UIViewController {
         return UIHostingController(rootView: instructionsView)
     }()
     
-    override func viewDidDisappear(_ animated: Bool) {
-        
-        super.viewDidDisappear(animated)
-        self.removeHostingController()
-    }
-
+    // MARK: View Life Cycle
+    
     override func viewDidLoad() {
         
         super.viewDidLoad()
@@ -88,24 +86,40 @@ class ViewController: UIViewController {
 
         let configuration: TrayConfiguration = TrayConfiguration()
         
+        /// When the tray is opened for the first time this is the synthesized
+        /// greeting that will be "said" to the user
+        
         configuration.greeting = """
         Welcome! This example uses models for Minecraft. Try saying, \"How do I make a castle?\"
         """
+        
+        /// When the tray is listening or processing speech there is a animated gradient that
+        /// sits on top of the tray. The default values are red, white and blue
+        
         configuration.gradientColors = [
             "#61fae9".spstk_color,
             "#2F5BEA".spstk_color,
             UIColor.systemRed
         ]
+        
+        /// Apart of the initialization of the tray is to download the nlu and wakeword models.
+        /// These are the default Spokestack models, but you can replace with your own
+        
         configuration.nluModelURLs = [
             NLUModelURLMetaDataKey: "https://d3dmqd7cy685il.cloudfront.net/nlu/production/shared/XtASJqxkO6UwefOzia-he2gnIMcBnR2UCF-VyaIy-OI/nlu.tflite",
             NLUModelURLNLUKey: "https://d3dmqd7cy685il.cloudfront.net/nlu/production/shared/XtASJqxkO6UwefOzia-he2gnIMcBnR2UCF-VyaIy-OI/vocab.txt",
             NLUModelURLVocabKey: "https://d3dmqd7cy685il.cloudfront.net/nlu/production/shared/XtASJqxkO6UwefOzia-he2gnIMcBnR2UCF-VyaIy-OI/metadata.json"
         ]
+        configuration.wakewordModelURLs = [
+            WakeWordModelDetectKey: "https://d3dmqd7cy685il.cloudfront.net/model/wake/spokestack/detect.tflite",
+            WakeWordModelEncodeKey: "https://d3dmqd7cy685il.cloudfront.net/model/wake/spokestack/encode.tflite",
+            WakeWordModelFilterKey: "https://d3dmqd7cy685il.cloudfront.net/model/wake/spokestack/filter.tflite"
+        ]
         
-        configuration.cliendId = "f7e4a3c5-8468-44a9-917b-64169227caba"
-        configuration.clientSecret = "A5ED55BA8E7BCF553A2DE6822E15AEBCB2A3245739097D135A80D83462072115"
+        /// The handleIntent callback is how the SpeechController and the TrayViewModel know if
+        /// NLUResult should be processed and what text should be added to the tableView.
         
-        let greeting: IntentResult = IntentResult(node: InterntResultNode.greeting.rawValue, prompt: configuration.greeting)
+        let greeting: IntentResult = IntentResult(node: IntentResultNode.greeting.rawValue, prompt: configuration.greeting)
         var lastNode: IntentResult = greeting
 
         configuration.handleIntent = {intent, slots, utterance in
@@ -114,20 +128,20 @@ class ViewController: UIViewController {
                 case IntentResultAmazonType.repeat.rawValue:
                     return lastNode
                 case IntentResultAmazonType.yes.rawValue:
-                    lastNode = IntentResult(node: InterntResultNode.search.rawValue, prompt: "I heard you say yes! What would you like to make?")
+                    lastNode = IntentResult(node: IntentResultNode.search.rawValue, prompt: "I heard you say yes! What would you like to make?")
                 case IntentResultAmazonType.no.rawValue:
-                    lastNode = IntentResult(node: InterntResultNode.exit.rawValue, prompt: "I heard you say no. Goodbye")
+                    lastNode = IntentResult(node: IntentResultNode.exit.rawValue, prompt: "I heard you say no. Goodbye")
                 case IntentResultAmazonType.stop.rawValue,
                      IntentResultAmazonType.cancel.rawValue,
                      IntentResultAmazonType.fallback.rawValue:
-                    lastNode = IntentResult(node: InterntResultNode.exit.rawValue, prompt: "Goodbye!")
+                    lastNode = IntentResult(node: IntentResultNode.exit.rawValue, prompt: "Goodbye!")
                 case IntentResultAmazonType.recipe.rawValue:
                     
                     if let whatToMakeSlot: Dictionary<String, Slot> = slots,
                        let slot: Slot = whatToMakeSlot["Item"],
                        let item: String = slot.value as? String {
                     
-                        lastNode = IntentResult(node: InterntResultNode.recipe.rawValue,
+                        lastNode = IntentResult(node: IntentResultNode.recipe.rawValue,
                                                 prompt: """
                                                 If I were a real app, I would show a screen now on how to make a \(item). Want to continue?
                                                 """
@@ -143,17 +157,25 @@ class ViewController: UIViewController {
             return lastNode
         }
         
+        /// Which NLUNodes should trigger the tray to close automatically
+        
         configuration.exitNodes = [
-            InterntResultNode.exit.rawValue
+            IntentResultNode.exit.rawValue
         ]
+        
+        /// Callback when the tray is opened. The call back is called _after_ the animation has finished
         
         configuration.onOpen = {
             LogController.shared.log("isOpen")
         }
         
+        /// Callback when the tray is closed. The call back is called _after_ the animation has finished
+        
         configuration.onClose = {
             LogController.shared.log("onClose")
         }
+        
+        /// Callback when a `TrayListenerType` has occured
         
         configuration.onEvent = {event in
             LogController.shared.log("onEvent \(event)")
@@ -163,6 +185,14 @@ class ViewController: UIViewController {
         tray.addToParentView()
         tray.listen()
     }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        
+        super.viewDidDisappear(animated)
+        self.removeHostingController()
+    }
+    
+    // MARK: Private (methods)
     
     private func addHostingController() -> Void {
 

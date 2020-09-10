@@ -30,8 +30,13 @@ public class SpokestackTrayViewController: ViewController, ObservableObject {
         case closed
     }
     
+    /// The (readonly) parent view controller which `SpokestackTrayViewController` is added
+    /// to as a child view controller.
+    /// - Returns UIViewController
     public private (set) var hostController: UIViewController?
     
+    /// The  (readonly) `open` or `closed` state of the tray which is published
+    /// - Returns TrayState
     @Published public private (set) var trayState: TrayState = .closed
     
     public var configuration: TrayConfiguration {
@@ -175,8 +180,16 @@ public class SpokestackTrayViewController: ViewController, ObservableObject {
         return MicrophoneView()
     }()
     
+    lazy private var impactGenerator: UIImpactFeedbackGenerator = {
+        return UIImpactFeedbackGenerator(style: .heavy)
+    }()
+    
     // MARK: Initializers
     
+    /// Required initiallizer
+    /// - Parameters:
+    ///   - hostController: The (parent view controller which `SpokestackTrayViewController` is added to as a child view controller.
+    ///   - configuration: `TrayConfiguration` instance to customize the tray
     public required convenience init(_ hostController: UIViewController, configuration: TrayConfiguration = TrayConfiguration()) {
         
         self.init()
@@ -206,8 +219,118 @@ public class SpokestackTrayViewController: ViewController, ObservableObject {
     public override func viewDidLoad() {
         
         super.viewDidLoad()
+        self.setupSubviews()
+    }
+    
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+    }
+    
+    public override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+    }
+    
+    // MARK: Public (methods)
+    
+    /// Initializes the pipeline to start listening
+    /// - Returns: Void
+    public func listen() -> Void {
+        self.viewModel.listen()
+    }
+    
+    /// Tears down the speech pipeline
+    /// - Returns: Void
+    public func stopListening() -> Void {
+        self.viewModel.stopListening()
+    }
+    
+    /// Sets up the subviews and necessary gesture recognizers, as well as, dds the tray to the `hostController`
+    ///  If the `hostController` hasn't been set then a `fatalError` will be thrown
+    /// - Returns: Void
+    public func addToParentView() -> Void {
+        
+        guard let parentController: UIViewController = self.hostController else {
+            fatalError("hostController isn't set")
+        }
+        
+        self.spsk_addToParentController(parentController)
+        let xCoordinate: CGFloat = self.configuration.orientation == .left ? parentController.view.frame.minX - parentController.view.frame.width : parentController.view.frame.width
+        
+        self.view.frame = CGRect(
+            x: xCoordinate,
+            y: parentController.view.frame.height * self.configuration.minHeightPercenter,
+            width: parentController.view.frame.width,
+            height: parentController.view.frame.height
+        )
+        
+        trayOriginalCenter = self.view.center
+        
+        /// Gradient View
+        
+        self.view.addSubview(self.animatedGradientView)
+        
+        self.animatedGradientView.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
+        self.animatedGradientView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
+        self.animatedGradientView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
+        self.animatedGradientView.heightAnchor.constraint(equalToConstant: 10.0).isActive = true
+    
+        /// Microphone View
+        
+        self.view.addSubview(self.microphoneView)        
+        self.microphoneView.orientation = self.configuration.orientation
+
+        let xAxisAnchor: NSLayoutXAxisAnchor = self.configuration.orientation == .left ? self.view.trailingAnchor : self.view.leadingAnchor
+        let microPhoneViewXAxis: NSLayoutXAxisAnchor = self.configuration.orientation == .left ? self.microphoneView.trailingAnchor : self.microphoneView.leadingAnchor
+        let microPhoneViewOffset: CGFloat = self.configuration.orientation == .left ? MicButtonOffset : -MicButtonOffset
+        
+        self.microphoneView.topAnchor.constraint(equalTo: self.animatedGradientView.bottomAnchor).isActive = true
+        microPhoneViewXAxis.constraint(equalTo: xAxisAnchor, constant: microPhoneViewOffset).isActive = true
+
+        /// Grabber Handle Container View
+        
+        self.view.addSubview(self.grabberHandleContainerView)
+        
+        self.grabberHandleContainerView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
+        self.grabberHandleContainerView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
+        self.grabberHandleContainerView.topAnchor.constraint(equalTo: self.animatedGradientView.bottomAnchor).isActive = true
+        self.grabberHandleContainerView.heightAnchor.constraint(equalToConstant: 60.0).isActive = true
+        
+        /// Tray TableView
+        
+        self.view.addSubview(self.trayTableView)
+        
+        self.trayTableView.topAnchor.constraint(equalTo: self.grabberHandleContainerView.bottomAnchor).isActive = true
+        self.trayTableView.bottomAnchor.constraint(equalTo: parentController.view.safeAreaLayoutGuide.bottomAnchor).isActive = true
+        self.trayTableView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
+        self.trayTableView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
+        
+        /// Gestures
+        
+        self.microphoneView.addGestureRecognizer(self.dismissTapGesture)
+        self.microphoneView.addGestureRecognizer(self.micPanGesture)
+    }
+    
+    /// Tells the speech pipeline to stop listening and removes the tray from the parent view controller
+    /// - Returns: Void
+    public func removeFromParentView() -> Void {
+        
+        /// Shutdown Spokestack
+        
+        self.viewModel.stopListening()
+        
+        /// Remove from view hiearchy
+        
+        self.spsk_removeFromParentController()
+    }
+    
+    // MARK: Private (methods)
+    
+    private func setupSubviews() -> Void {
+        
         self.addToParentView()
-        self.trayTableView.tableFooterView = TrayTableViewHeaderFooter(frame: CGRect(x: 0, y: 0, width: self.trayTableView.frame.width, height: 44.0))
+        
+        let tableFooterViewFrame: CGRect = CGRect(x: 0, y: 0, width: self.trayTableView.frame.width, height: 44.0)
+        self.trayTableView.tableFooterView = TrayTableViewHeaderFooter(frame: tableFooterViewFrame)
         self.grabberHandleContainerView.addGestureRecognizer(panGesture)
         
         self.viewModel.shoulOpen.sink(receiveValue: {shouldOpen in
@@ -229,6 +352,12 @@ public class SpokestackTrayViewController: ViewController, ObservableObject {
                 self.animatedGradientView.startAnimation()
                 self.listeningLabel.text = "Listening..."
                 
+                /// Send haptic feedback
+                
+                if self.configuration.useHaptic {
+                    self.impactGenerator.impactOccurred()
+                }
+                
             } else {
 
                 if self.viewModel.hasChosenToExit {
@@ -244,92 +373,6 @@ public class SpokestackTrayViewController: ViewController, ObservableObject {
             self.listeningLabel.text = nil
         })
         .store(in: &self.cancellables)
-    }
-    
-    public override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-    }
-    
-    public override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-    }
-    
-    // MARK: Public (methods)
-    
-    public func listen() -> Void {
-        self.viewModel.listen()
-    }
-    
-    public func stopListening() -> Void {
-        self.viewModel.stopListening()
-    }
-    
-    public func addToParentView() -> Void {
-        
-        guard let parentController: UIViewController = self.hostController else {
-            fatalError("hostController isn't set")
-        }
-        
-        self.spsk_addToParentController(parentController)
-        
-        self.view.frame = CGRect(
-            x: parentController.view.frame.minX - parentController.view.frame.width,
-            y: parentController.view.frame.height * self.configuration.minHeightPercenter,
-            width: parentController.view.frame.width,
-            height: parentController.view.frame.height
-        )
-        
-        trayOriginalCenter = self.view.center
-        
-        ///
-        
-        self.view.addSubview(self.animatedGradientView)
-        
-        self.animatedGradientView.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
-        self.animatedGradientView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
-        self.animatedGradientView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
-        self.animatedGradientView.heightAnchor.constraint(equalToConstant: 10.0).isActive = true
-    
-        ///
-        
-        self.view.addSubview(self.microphoneView)
-        
-        self.microphoneView.topAnchor.constraint(equalTo: self.animatedGradientView.bottomAnchor).isActive = true
-        self.microphoneView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: MicButtonOffset).isActive = true
-
-        ///
-        
-        self.view.addSubview(self.grabberHandleContainerView)
-        
-        self.grabberHandleContainerView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
-        self.grabberHandleContainerView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
-        self.grabberHandleContainerView.topAnchor.constraint(equalTo: self.animatedGradientView.bottomAnchor).isActive = true
-        self.grabberHandleContainerView.heightAnchor.constraint(equalToConstant: 60.0).isActive = true
-        
-        ///
-        
-        self.view.addSubview(self.trayTableView)
-        
-        self.trayTableView.topAnchor.constraint(equalTo: self.grabberHandleContainerView.bottomAnchor).isActive = true
-        self.trayTableView.bottomAnchor.constraint(equalTo: parentController.view.safeAreaLayoutGuide.bottomAnchor).isActive = true
-        self.trayTableView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
-        self.trayTableView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
-        
-        /// Gestures
-        
-        self.microphoneView.addGestureRecognizer(self.dismissTapGesture)
-        self.microphoneView.addGestureRecognizer(self.micPanGesture)
-    }
-    
-    public func removeFromParentView() {
-        
-        /// Shutdown Spokestack
-        
-        self.viewModel.stopListening()
-        
-        /// Remove from view hiearchy
-        
-        self.spsk_removeFromParentController()
     }
 }
 
@@ -408,7 +451,7 @@ fileprivate extension SpokestackTrayViewController {
         self.trayState = .closed
         self.viewModel.deactivate()
         
-        let xCoordinate: CGFloat = parentController.view.frame.minX - parentController.view.frame.width
+        let xCoordinate: CGFloat = self.configuration.orientation == .left ? parentController.view.frame.minX - parentController.view.frame.width : parentController.view.frame.width
         var newFrame: CGRect = self.view.frame
         newFrame.origin.x = xCoordinate
 
@@ -469,7 +512,10 @@ fileprivate extension SpokestackTrayViewController {
                                 if finished {
                                     
                                     self.trayState = shouldOpen ? .open : .closed
-                                    self.configuration.onOpen?()
+                                    
+                                    if shouldOpen {
+                                        self.configuration.onOpen?()
+                                    }
                                 }
                             }
                 )

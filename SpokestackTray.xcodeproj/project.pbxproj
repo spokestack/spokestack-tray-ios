@@ -24,7 +24,6 @@
 		017D1D6D24E30DAD00130502 /* TableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017D1D6C24E30DAD00130502 /* TableViewCell.swift */; };
 		017D1D6F24E30DB900130502 /* TrayTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017D1D6E24E30DB900130502 /* TrayTableViewCell.swift */; };
 		017D1D7224E3101200130502 /* TrayMessageLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017D1D7124E3101200130502 /* TrayMessageLabel.swift */; };
-		017D1D7524E3152E00130502 /* TrayController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017D1D7424E3152E00130502 /* TrayController.swift */; };
 		017D1D7824E3155100130502 /* TrayViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017D1D7724E3155100130502 /* TrayViewModel.swift */; };
 		017EA3B32501383E004D9FD7 /* LogController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017EA3B22501383E004D9FD7 /* LogController.swift */; };
 		01A57D7124F842DB00EC68E9 /* Downloads.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A57D7024F842DB00EC68E9 /* Downloads.swift */; };
@@ -96,7 +95,6 @@
 		017D1D6C24E30DAD00130502 /* TableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewCell.swift; sourceTree = "<group>"; };
 		017D1D6E24E30DB900130502 /* TrayTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayTableViewCell.swift; sourceTree = "<group>"; };
 		017D1D7124E3101200130502 /* TrayMessageLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayMessageLabel.swift; sourceTree = "<group>"; };
-		017D1D7424E3152E00130502 /* TrayController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayController.swift; sourceTree = "<group>"; };
 		017D1D7724E3155100130502 /* TrayViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayViewModel.swift; sourceTree = "<group>"; };
 		017EA3B22501383E004D9FD7 /* LogController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogController.swift; sourceTree = "<group>"; };
 		01A57D7024F842DB00EC68E9 /* Downloads.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Downloads.swift; sourceTree = "<group>"; };
@@ -238,7 +236,6 @@
 			children = (
 				01EC3B5524F3299D00229017 /* SpeechController.swift */,
 				017EA3B22501383E004D9FD7 /* LogController.swift */,
-				017D1D7424E3152E00130502 /* TrayController.swift */,
 				01EC3B6024F4533B00229017 /* Permissions.swift */,
 			);
 			path = Controllers;
@@ -551,7 +548,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0153564224E0D7AE00CFBD66 /* ViewController.swift in Sources */,
-				017D1D7524E3152E00130502 /* TrayController.swift in Sources */,
 				017D1D6524E30CB700130502 /* TrayTableView.swift in Sources */,
 				01EC3B5B24F32C2D00229017 /* IntentResult.swift in Sources */,
 				01E35BCD24E32B2600D6A5FA /* UITableView+Extensions.swift in Sources */,

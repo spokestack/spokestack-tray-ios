@@ -10,6 +10,8 @@ import Spokestack
 import Combine
 import AVFoundation
 
+typealias ModelDownloadPublisherURLs = ((nluMeta: URL, nluModel: URL, nluVocab: URL),(wwFilter: URL, wwEncode: URL, wwDetect: URL))
+
 final class SpeechController: NSObject, ObservableObject {
     
     // MARK: Internal (properties)
@@ -108,14 +110,22 @@ final class SpeechController: NSObject, ObservableObject {
         let nluDownloadPublishers = Publishers.Zip3(downloadNLU, downloadNLUMetaData, downloadNLUVocab)
         let wakeWordDownloadPublishers = Publishers.Zip3(downloadWakeWordFilter, downloadWakeWordDetect, downloadWakeWordEncode)
         
-        return Publishers.Zip(nluDownloadPublishers, wakeWordDownloadPublishers).map{nluDownloads, wakeWordDownloads -> Downloads in
+        let publishers = Publishers.Zip(nluDownloadPublishers, wakeWordDownloadPublishers).map{ nluDownloads, wakeWordDownloads -> ModelDownloadPublisherURLs in
             
-            return Downloads.init(nluMetaURL: nluDownloads.0,
-                                  nluURL: nluDownloads.1,
-                                  nluVocabURL: nluDownloads.2,
-                                  wakeWordFilter: wakeWordDownloads.0,
-                                  wakeWordEncode: wakeWordDownloads.1,
-                                  wakeWordDetect: wakeWordDownloads.2)
+            return (
+                (nluMeta: nluDownloads.0, nluModel: nluDownloads.1, nluVocab: nluDownloads.2),
+                (wwFilter: wakeWordDownloads.0, wwEncode: wakeWordDownloads.1, wwDetect: wakeWordDownloads.2)
+            )
+        }
+        
+        return publishers.map{nluDownloads, wakeWordDownloads -> Downloads in
+            
+            return Downloads.init(nluMetaURL: nluDownloads.nluMeta,
+                                  nluURL: nluDownloads.nluModel,
+                                  nluVocabURL: nluDownloads.nluVocab,
+                                  wakeWordFilter: wakeWordDownloads.wwFilter,
+                                  wakeWordEncode: wakeWordDownloads.wwEncode,
+                                  wakeWordDetect: wakeWordDownloads.wwDetect)
         }
         .receive(on: RunLoop.main)
         .eraseToAnyPublisher()
@@ -234,8 +244,8 @@ final class SpeechController: NSObject, ObservableObject {
          return try! SpeechPipelineBuilder()
                     .addListener(self)
                     .setDelegateDispatchQueue(DispatchQueue.main)
-                    .useProfile(.tfLiteWakewordAppleSpeech)
-                    .setProperty("tracing", Trace.Level.PERF)
+                    .useProfile(configuration.speechPipelineProfile)
+                    .setProperty("tracing", configuration.traceLevel)
                     .setProperty("detectModelPath", URL.spsk_documentsDirectory.appendingPathComponent("detect.tflite").path)
                     .setProperty("encodeModelPath", URL.spsk_documentsDirectory.appendingPathComponent("encode.tflite").path)
                     .setProperty("filterModelPath", URL.spsk_documentsDirectory.appendingPathComponent("filter.tflite").path)
@@ -267,6 +277,8 @@ final class SpeechController: NSObject, ObservableObject {
         self.pipeline.stop()
     }
     
+    /// Activates the `SpeechPipeline`
+    /// - Returns: Void
     func activate() -> Void {
 
         if self.listeningPublisher.value == false {
@@ -274,6 +286,8 @@ final class SpeechController: NSObject, ObservableObject {
         }
     }
     
+    /// Deactivates the `SpeechPipeline`
+    /// - Returns: Void
     func deactive() -> Void {
         
         if self.listeningPublisher.value == true {
@@ -281,6 +295,8 @@ final class SpeechController: NSObject, ObservableObject {
         }
     }
     
+    /// Prodnounced Speech to Text
+    /// - Returns: Void
     func synthesizeSpeech(_ input: String) -> Void {
     
         if self.isSilent {
@@ -289,7 +305,9 @@ final class SpeechController: NSObject, ObservableObject {
 
         self.tts?.speak(TextToSpeechInput(input, voice: configuration.voice, inputFormat: configuration.ttsFormat))
     }
-
+    
+    /// Initializes the `NLUTensorflow` and `SpeechConfiguration`
+    /// - Returns: Void
     func initializeNLU() -> Void {
         
         self.speechConfiguration.nluModelPath = URL.spsk_documentsDirectory.appendingPathComponent("nlu.tflite").path
@@ -300,10 +318,21 @@ final class SpeechController: NSObject, ObservableObject {
 }
 
 extension SpeechController: NLUDelegate {
- 
+    
+    /// The `NLUDelegate` method that takes the `NLUResult` and synthesizes the prompt
+    /// if the tray hasn't set the `isSilent` property to `true`.  If `TrayConfiguration.handleIntent` property hasn't
+    /// been configured then method is returned immediately.
+    /// - Parameter result: NLUResult
     func classification(result: NLUResult) {
         
         guard let intentResult: IntentResult = configuration.handleIntent?(result.intent, result.slots, result.utterance) else {
+            
+            let errorEvent: TrayListenerEvent = TrayListenerEvent()
+            
+            errorEvent.type = .error
+            errorEvent.error = "THere was wasn't a IntentResult found for \(result.utterance)"
+            
+            self.configuration.onEvent?(errorEvent)
             return
         }
 
@@ -318,10 +347,18 @@ extension SpeechController: NLUDelegate {
         self.configuration.onEvent?(event)
     }
     
+    /// Sends the trace to  `LogController.log` with the level set to `info`
+    /// - Parameter trace: String
+    /// - Returns: Void
     func didTrace(_ trace: String) -> Void {
         LogController.shared.log("NLUDelegate didTrace \(trace)", level: .info)
     }
     
+    /// `NLUDelegate` method that is called when an `Error` has occured.
+    /// The `nluError` is passed to `LogController.log`with a level of `error` and
+    /// the pipeline is stopped
+    /// - Parameter nluError: Error
+    /// - Returns: Void
     func failure(nluError: Error) -> Void {
 
         LogController.shared.log("NLUDelegate failure \(nluError)", level: .error)
@@ -342,6 +379,9 @@ extension SpeechController: NLUDelegate {
 
 extension SpeechController: TextToSpeechDelegate {
     
+    /// `TextToSpeechDelegate` method that is called when a successful `TextToSpeechResult` has been
+    ///  processed.
+    /// - Parameter result: TextToSpeechResult
     func success(result: TextToSpeechResult) {
         
         LogController.shared.log("SpeechController result \(String(describing: result.url))")
@@ -354,15 +394,19 @@ extension SpeechController: TextToSpeechDelegate {
         self.configuration.onEvent?(event)
     }
     
+    /// `TextToSpeechDelegate` method that is called when the speech pipeline has detected that a user
+    /// has started to speak. The `didBeginSpeakingPublisher` will send `true` to its subscribers
     func didBeginSpeaking() {
         
         self.didBeginSpeakingPublisher.send(true)
         let event: TrayListenerEvent = TrayListenerEvent()
-        event.type = .startSpeaking
+        event.type = .startedSpeaking
         
         self.configuration.onEvent?(event)
     }
     
+    /// `TextToSpeechDelegate` method that is called when the speech pipeline has detected that a user
+    /// has finished speaking. The `didFinishSpeakingPublisher` will send `true` to its subscribers
     func didFinishSpeaking() {
         
         self.didFinishSpeakingPublisher.send(true)
@@ -372,6 +416,10 @@ extension SpeechController: TextToSpeechDelegate {
         self.configuration.onEvent?(event)
     }
     
+    /// `TextToSpeechDelegate` method that is called when the speech pipeline has encountered an error.
+    /// If the `stopOnErrorPublisher` is currently `true` then the subscribers are sent a `false` value
+    /// and the pipleline is stopped
+    /// - Returns Void
     func failure(ttsError: Error) -> Void {
 
         if self.stopOnErrorPublisher.value {
@@ -389,15 +437,19 @@ extension SpeechController: TextToSpeechDelegate {
 
 extension SpeechController: SpeechEventListener {
     
+    /// The speech pipeline has been initialized
+    /// The `initPublisher` subscribers are sent a `true` value
     func didInit() {
         
-        self.startedPublisher.send(true)
+        self.initPublisher.send(true)
         let event: TrayListenerEvent = TrayListenerEvent()
         event.type = .initialize
         
         self.configuration.onEvent?(event)
     }
     
+    /// The speech pipeline has been started.
+    /// The `startedPublisher` subscribers are sent a `true` value
     func didStart() {
         
         self.startedPublisher.send(true)
@@ -407,6 +459,8 @@ extension SpeechController: SpeechEventListener {
         self.configuration.onEvent?(event)
     }
     
+    /// The speech pipeline has been stopped.
+    /// The `startedPublisher` subscribers are sent a `false` value
     func didStop() {
         
         self.startedPublisher.send(false)
@@ -418,7 +472,9 @@ extension SpeechController: SpeechEventListener {
 
     /// The pipeline activate event. Occurs upon activation of speech recognition.
     /// The pipeline remains active until the user stops talking or the activation timeout is reached.
+    /// The `listeningPublisher` sends a `true` value to its subscribers
     ///
+    /// - Returns: Void
     /// - SeeAlso:  wakeActiveMin
     func didActivate() -> Void {
         
@@ -431,6 +487,9 @@ extension SpeechController: SpeechEventListener {
     
     /// The pipeline deactivate event. Occurs upon deactivation of speech recognition.
     /// The pipeline remains inactive until activated again by either explicit activation or wakeword activation.
+    /// The `listeningPublisher` sends a `false` value to its subscribers
+    ///
+    /// - Returns: Void
     func didDeactivate() -> Void {
         
         self.listeningPublisher.send(false)
@@ -440,8 +499,11 @@ extension SpeechController: SpeechEventListener {
         self.configuration.onEvent?(event)
     }
     
-    /// The error event. An error occured in the speech pipeline.
+    /// The error event. An error occured in the speech pipeline. The `transcriptResult` sends the error's
+    /// `localizedDescription` to the `onEvent` callback
+    ///
     /// - Parameter error: A human-readable error message.
+    /// - Returns: Void
     func failure(speechError: Error) -> Void {
         
         self.transcriptResult.send(speechError.localizedDescription)
@@ -453,7 +515,13 @@ extension SpeechController: SpeechEventListener {
     }
     
     /// The pipeline speech recognition result event. The pipeline was activated and recognized speech.
+    ///  The `stopOnErrorPublisher` will send a `true` value to its subscribers. If the `result.transcript`
+    ///  isn't empty then the `listeningPublisher` will send a `false` value to its subscribers, followed by
+    ///  passing the transcript through the configuration's `editTranscript` callback before the `nlu` instance
+    ///  attempts to classify it. The `transcriptResult` will send the transcript to its subscribers
+    ///
     /// - Parameter result: The speech recognition result.
+    /// - Returns: Void
     func didRecognize(_ result: SpeechContext) -> Void {
         
         self.stopOnErrorPublisher.send(true)
@@ -476,6 +544,8 @@ extension SpeechController: SpeechEventListener {
     }
     
     /// The pipeline timeout event. The pipeline experienced a timeout in a component.
+    ///  The `didTimeoutPublisher` sends a `true` value to its subscribers
+    /// - Returns: Void
     func didTimeout() -> Void {
         
         LogController.shared.log("SpeechEventListener didTimeout", level: .info)

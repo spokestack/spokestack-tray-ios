@@ -16,19 +16,37 @@ public class LogController {
     
     // MARK: Private (properties)
     
+    #if canImport(OSLog)
     private lazy var logger: OSLog = {
         
         let bundleID: String = Bundle(for: LogController.self).bundleIdentifier ?? "spokestack-ios-tray"
         return OSLog(subsystem: bundleID, category: "Pipeline")
     }()
-
+    #else
+    private lazy var logger = {
+        return self
+    }()
+    #endif
+    
     // MARK: Initializers
-
+    
     private init() {}
     
-    // MARK: Internal (methods)
+    // MARK: Public (methods)
     
+    #if canImport(OSLog)
     public func log(_ message: String, level: OSLogType = .debug) -> Void {
         os_log("%@", log: self.logger, type: level, message)
     }
+    #else
+    
+    public enum LogLevel {
+        case info
+        case error
+    }
+    
+    public func log(_ message: String, level: LogLevel = .info) -> Void {
+        print(message)
+    }
+    #endif
 }

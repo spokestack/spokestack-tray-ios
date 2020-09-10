@@ -9,7 +9,11 @@ import Foundation
 
 struct TrayMessage {
     
+    /// Tray alignment
+    /// - Returns TrayTableViewCellMessageAlignment
     let alignment: TrayTableViewCellMessageAlignment
     
+    /// Message
+    /// - Returns String
     let message: String
 }

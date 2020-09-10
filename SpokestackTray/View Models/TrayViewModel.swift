@@ -17,8 +17,11 @@ final class TrayViewModel: ObservableObject {
     @Published private(set) var foundTranscript: PassthroughSubject<String, Never> = PassthroughSubject()
     
     var configuration: TrayConfiguration = TrayConfiguration() {
+        
         didSet {
+        
             self.speechController.configuration = configuration
+            self.datasource.configuration = configuration
         }
     }
     
@@ -78,7 +81,7 @@ final class TrayViewModel: ObservableObject {
                 let message: TrayMessage = TrayMessage(alignment: .left, message: result.prompt)
                 self.datasource.add(message)
                     
-                /// if the `result.node` == anyting in exit nodes then send the `shouldOpen` to false
+                /// if `result.node` is in the exit nodes then set `shouldOpen `to `false`
                 
                 let shouldExit: Bool = !self.configuration.exitNodes.filter({
                     $0.lowercased() == result.node.lowercased()
@@ -159,22 +162,37 @@ final class TrayViewModel: ObservableObject {
     
     // MARK: Internal (methods)
     
+    /// Will start by checking to see if the user has downloaded the NLU and Wakeworld models,
+    /// and approved of the the iOS permissions.
+    ///
+    /// If successful then the NLU models are initialized and the speed pipleline is started
+    /// - Returns: Void
     func listen() -> Void {
         self.initializeSetupIfNecessary()
     }
     
+    /// Stops the speed pipleline
+    /// - Returns: Void
     func stopListening() -> Void {
         self.speechController.stop()
     }
     
+    /// If the speech pipeline isn't listening then activate
+    /// - Returns: Void
     func activate() -> Void {
         self.speechController.activate()
     }
-    
+
+    /// If the speech pipeline is listening then deactivate
+    /// - Returns: Void
     func deactivate() -> Void {
         self.speechController.deactive()
     }
     
+    /// Will dispaly and say greeting if this was the first time
+    /// the user has opened the tray
+    /// 
+    /// - Returns: Void
     func initialize() -> Void {
         
         if configuration.sayGreeting {
@@ -207,9 +225,9 @@ final class TrayViewModel: ObservableObject {
                         break
                 }
                 
-            }, receiveValue: {setup in
+            }, receiveValue: {(loadingCompleted, models) in
 
-                if setup.0 {
+                if loadingCompleted {
 
                     self.speechController.initializeNLU()
                     self.speechController.start()

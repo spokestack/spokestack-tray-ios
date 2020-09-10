@@ -12,6 +12,10 @@ final class MicrophoneView: UIView {
     
     // MARK: Internal (properties)
     
+    var orientation: TrayConfiguration.TrayDirection = .left
+    
+    // MARK: Internal (properties)
+    
     override var intrinsicContentSize: CGSize {
         return CGSize(width: 60.0, height: 60.0)
     }
@@ -61,7 +65,7 @@ final class MicrophoneView: UIView {
 
         let imageWidth: CGFloat = 20.0
         let imageHeight: CGFloat = 20.0
-        let imageOffset: CGFloat = 10.0
+        let imageOffset: CGFloat = self.orientation == .left ?  10.0 : -10.0
         
         self.microphoneImageView.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
         self.microphoneImageView.centerXAnchor.constraint(equalTo: self.centerXAnchor, constant: imageOffset).isActive = true

@@ -24,12 +24,6 @@ final class TrayMessageLabel: UILabel {
                       height: size.height + self.edgeInsets.top + self.edgeInsets.bottom)
     }
 
-//    override var bounds: CGRect {
-//        didSet {
-//            preferredMaxLayoutWidth = self.bounds.width - (self.edgeInsets.left + self.edgeInsets.right)
-//        }
-//    }
-    
     // MARK: Initializers
     
     override init(frame: CGRect) {

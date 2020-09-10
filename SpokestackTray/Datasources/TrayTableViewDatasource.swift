@@ -23,6 +23,8 @@ final class TrayTableViewDatasource: NSObject {
     
     private (set) var messages: Array<TrayMessage> = []
     
+    var configuration: TrayConfiguration = TrayConfiguration()
+    
     // MARK: Internal (methods)
     
     func add(_ message: TrayMessage) -> Void {
@@ -113,6 +115,7 @@ extension TrayTableViewDatasource: UITableViewDelegate, UITableViewDataSource {
         let cell: TrayTableViewCell = tableView.dequeueReusableCell(withIdentifier: TrayTableViewCell.reuseIdentifier,
                                                                                  for: indexPath) as! TrayTableViewCell
         cell.message = message
+        cell.preferredFont = self.configuration.fontFamily
 
         return cell
     }

@@ -10,10 +10,6 @@ import UIKit
 
 public class ViewController: UIViewController {
     
-    // MARK: Intenral (properties)
-    
-    weak var activeField: UITextField?
-    
     // MARK: Initializers
     
     public init() {
@@ -30,15 +26,6 @@ public class ViewController: UIViewController {
         
         self.view = UIView(frame: UIScreen.main.bounds)
         self.view.backgroundColor = .white
-        
-        let backButtonItem: UIBarButtonItem = UIBarButtonItem(title: "",
-                                                              style: .done,
-                                                              target: nil,
-                                                              action: nil)
-        
-        self.navigationItem.backBarButtonItem = backButtonItem
-        self.edgesForExtendedLayout = []
-        self.overrideUserInterfaceStyle = .light
     }
     
     public override func viewDidLoad() {

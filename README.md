@@ -29,6 +29,8 @@ _Without these your app will crash_
 
 ### Set the AudioSession category
 
+ _For most apps, this should be put in AppDelegate.application_
+
 ```swift
         do {
             let session = AVAudioSession.sharedInstance()
@@ -54,23 +56,42 @@ import Spokestack
 
         let configuration: TrayConfiguration = TrayConfiguration()
         
+        /// When the tray is opened for the first time this is the synthesized
+        /// greeting that will be "said" to the user
+
         configuration.greeting = """
         Welcome! This example uses models for Minecraft. Try saying, \"How do I make a castle?\"
         """
+        
+        /// When the tray is listening or processing speech there is a animated gradient that
+        /// sits on top of the tray. The default values are red, white and blue
+
         configuration.gradientColors = [
             "#61fae9".spstk_color,
             "#2F5BEA".spstk_color,
             UIColor.systemRed
         ]
+
+        /// Apart of the initialization of the tray is to download the nlu and wakeword models.
+        /// These are the default Spokestack models, but you can replace with your own
+
         configuration.nluModelURLs = [
             NLUModelURLMetaDataKey: "https://d3dmqd7cy685il.cloudfront.net/nlu/production/shared/XtASJqxkO6UwefOzia-he2gnIMcBnR2UCF-VyaIy-OI/nlu.tflite",
             NLUModelURLNLUKey: "https://d3dmqd7cy685il.cloudfront.net/nlu/production/shared/XtASJqxkO6UwefOzia-he2gnIMcBnR2UCF-VyaIy-OI/vocab.txt",
             NLUModelURLVocabKey: "https://d3dmqd7cy685il.cloudfront.net/nlu/production/shared/XtASJqxkO6UwefOzia-he2gnIMcBnR2UCF-VyaIy-OI/metadata.json"
         ]
-        
+        configuration.wakewordModelURLs = [
+            WakeWordModelDetectKey: "https://d3dmqd7cy685il.cloudfront.net/model/wake/spokestack/detect.tflite",
+            WakeWordModelEncodeKey: "https://d3dmqd7cy685il.cloudfront.net/model/wake/spokestack/encode.tflite",
+            WakeWordModelFilterKey: "https://d3dmqd7cy685il.cloudfront.net/model/wake/spokestack/filter.tflite"
+        ]
+
         configuration.cliendId = "YOUR_CLIENT_ID"
         configuration.clientSecret = "YOUR_CLIENT_SECRET"
         
+        /// The handleIntent callback is how the SpeechController and the TrayViewModel know if 
+        /// NLUResult should be processed and what text should be added to the tableView.
+
         let greeting: IntentResult = IntentResult(node: InterntResultNode.greeting.rawValue, prompt: configuration.greeting)
         var lastNode: IntentResult = greeting
 
@@ -109,17 +130,25 @@ import Spokestack
             return lastNode
         }
         
+        /// Which NLUNodes should trigger the tray to close automatically
+
         configuration.exitNodes = [
             InterntResultNode.exit.rawValue
         ]
+        
+        /// Callback when the tray is opened. The call back is called _after_ the animation has finished
         
         configuration.onOpen = {
             LogController.shared.log("isOpen")
         }
         
+        /// Callback when the tray is closed. The call back is called _after_ the animation has finished
+        
         configuration.onClose = {
             LogController.shared.log("onClose")
         }
+        
+        /// Callback when a `TrayListenerType` has occured
         
         configuration.onEvent = {event in
             LogController.shared.log("onEvent \(event)")

@@ -28,43 +28,26 @@ class TrayTableViewCell: TableViewCell {
                 
                 self.messageLabel.text = newMessage.message
                 
+                /// Disable the current  message constraints
+
+                self.disableConstraints()
+                
                 if newMessage.alignment == .left {
                     
                     self.messageLabel.textAlignment = .left
                     self.messageLabel.backgroundColor = "#CCE4FF".spsk_color
-                    
-                    /// Disable the current user message constraints
-                    
-                    let disabledConstraints: Array<NSLayoutConstraint> = [
-                        self.leftMessageConstraint,
-                        self.rightMessageConstraint
-                    ].compactMap({$0})
-                    
-                    /// Disable any current constraints
-                    
-                    NSLayoutConstraint.deactivate(disabledConstraints)
-                    
-                    let activeConstraints: Array<NSLayoutConstraint> = [
-                        self.rightMessageConstraint,
-                        self.leftMessageConstraint
-                    ].compactMap({$0})
-                    
-                    NSLayoutConstraint.deactivate(activeConstraints)
-                    
+
                     /// Message Label
                     
                     self.leftMessageConstraint = self.messageLabel.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor,
                                                                                             constant: TrailingMargin)
-
-//                    self.rightMessageConstraint = self.messageLabel.trailingAnchor.constraint(lessThanOrEqualTo: self.contentView.trailingAnchor, constant: -LeadingMargin)
                     
 
                     /// Activate Constraints
                     
                     NSLayoutConstraint.activate(
                         [
-                            self.leftMessageConstraint,
-//                            self.rightMessageConstraint
+                            self.leftMessageConstraint
                         ]
                     )
                     
@@ -73,29 +56,8 @@ class TrayTableViewCell: TableViewCell {
                     self.messageLabel.textAlignment = .right
                     self.messageLabel.backgroundColor = "#F6F9FC".spsk_color
                     
-                    /// Disable the current user message constraints
-                    
-                    let disabledConstraints: Array<NSLayoutConstraint> = [
-                        self.rightMessageConstraint,
-                        self.leftMessageConstraint
-                    ].compactMap({$0})
-                    
-                    /// Disable any current constraints
-                    
-                    NSLayoutConstraint.deactivate(disabledConstraints)
-                    
-                    let activeConstraints: Array<NSLayoutConstraint> = [
-                        self.rightMessageConstraint,
-                        self.leftMessageConstraint
-                    ].compactMap({$0})
-                    
-                    NSLayoutConstraint.deactivate(activeConstraints)
-                    
                     /// Message Label
-                    
-//                    self.leftMessageConstraint = self.messageLabel.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor,
-//                                                                                            constant: LeadingMargin)
-                    
+
                     self.rightMessageConstraint = self.messageLabel.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor,
                                                                                               constant: -TrailingMargin)
 
@@ -103,11 +65,20 @@ class TrayTableViewCell: TableViewCell {
                     
                     NSLayoutConstraint.activate(
                         [
-//                            self.leftMessageConstraint,
                             self.rightMessageConstraint
                         ]
                     )
                 }
+            }
+        }
+    }
+    
+    var preferredFont: UIFont? {
+        
+        didSet {
+            
+            if preferredFont != nil {
+                self.messageLabel.font = preferredFont
             }
         }
     }
@@ -159,5 +130,17 @@ class TrayTableViewCell: TableViewCell {
         
         self.messageLabel.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 10.0).isActive = true
         self.messageLabel.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor, constant: -10.0).isActive = true
+    }
+    
+    // MARK: Private (methods)
+    
+    private func disableConstraints() -> Void {
+
+        let activeConstraints: Array<NSLayoutConstraint> = [
+            self.leftMessageConstraint,
+            self.rightMessageConstraint
+        ].compactMap({$0})
+        
+        NSLayoutConstraint.deactivate(activeConstraints)
     }
 }

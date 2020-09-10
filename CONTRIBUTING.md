@@ -1,28 +1,3 @@
-## Development workflow
-
-To get started with the project, run `npm run bootstrap` in the root directory to install the required dependencies for each package:
-
-## Commit message convention
-
-We follow the [conventional commits specification](https://www.conventionalcommits.org/en) for our commit messages:
-
-- `fix`: bug fixes, e.g. fix crash due to deprecated method.
-- `feat`: new features, e.g. add new method to the module.
-- `refactor`: code refactor, e.g. migrate from class components to hooks.
-- `docs`: changes into documentation, e.g. add usage example for the module..
-- `test`: adding or updating tests, eg add integration tests using detox.
-- `chore`: tooling changes, e.g. change CI config.
-
-Our pre-commit hooks verify that your commit message matches this format when committing.
-
-## Linting and tests
-
-[ESLint](https://eslint.org/), [Prettier](https://prettier.io/), [TypeScript](https://www.typescriptlang.org/)
-
-We use [TypeScript](https://www.typescriptlang.org/) for type checking, [ESLint](https://eslint.org/) with [Prettier](https://prettier.io/) for linting and formatting the code, and [Jest](https://jestjs.io/) for testing.
-
-Our pre-commit hooks verify that the linter and tests pass when committing.
-
 ## Feature Requests
 
 Feature requests should be submitted in the
@@ -46,14 +21,6 @@ When you're sending a pull request:
 - Review the documentation to make sure it looks good.
 - Follow the pull request template when opening a pull request.
 - For pull requests that change the API or implementation, discuss with maintainers first by opening an issue.
-
-## Editing documentation
-
-### Do not edit below the "Documentation" header in the README
-
-Edit the comments and type declarations in the `src/` folder, or the markdown files in the `tasks/` folder.
-
-The documentation is auto-generated using a combination of [typedoc](https://typedoc.org/) and a hand-rolled script (`tasks/docs.js`). First, typedoc generates markdown from the TypeScript files into the `docs/` folder, which is ignored by git, and then `tasks/docs.js` concatenates those files and cleans them up for presentation in the README.
 
 ## Code of Conduct
 
