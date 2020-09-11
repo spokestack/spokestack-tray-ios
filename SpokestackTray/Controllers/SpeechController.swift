@@ -77,7 +77,7 @@ final class SpeechController: NSObject, ObservableObject {
                     return error
                 }
                 
-                if let urlerror = error as? URLError {
+                if error is URLError {
                     return TraySetupInitializeError.invalidModelDownloadStatus
                 }
                 

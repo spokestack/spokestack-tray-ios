@@ -51,8 +51,7 @@
 		01EC3B5D24F346F600229017 /* TrayListenerEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01EC3B5C24F346F600229017 /* TrayListenerEvent.swift */; };
 		01EC3B5F24F361A600229017 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01EC3B5E24F361A600229017 /* Constants.swift */; };
 		01EC3B6124F4533B00229017 /* Permissions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01EC3B6024F4533B00229017 /* Permissions.swift */; };
-		B59E16733F9B6BED731825FC /* Pods_SpokestackTrayExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 15E151C7C2D9F039B9E15238 /* Pods_SpokestackTrayExample.framework */; };
-		DFEDD43442DF7117BB281D52 /* Pods_SpokestackTray.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 668ACDD0614E1272D3DE20CA /* Pods_SpokestackTray.framework */; };
+		5B91C9C2EDA5AF4DE894E4CB /* libPods-SpokestackTray.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 297656FD510776C9D1184EA5 /* libPods-SpokestackTray.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -126,10 +125,7 @@
 		01EC3B5C24F346F600229017 /* TrayListenerEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayListenerEvent.swift; sourceTree = "<group>"; };
 		01EC3B5E24F361A600229017 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		01EC3B6024F4533B00229017 /* Permissions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Permissions.swift; sourceTree = "<group>"; };
-		15E151C7C2D9F039B9E15238 /* Pods_SpokestackTrayExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SpokestackTrayExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		25A680A3AED45A9F3CAA4A22 /* Pods-SpokestackTrayExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SpokestackTrayExample.release.xcconfig"; path = "Target Support Files/Pods-SpokestackTrayExample/Pods-SpokestackTrayExample.release.xcconfig"; sourceTree = "<group>"; };
-		413BA4A35365319D6CBD9543 /* Pods-SpokestackTrayExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SpokestackTrayExample.debug.xcconfig"; path = "Target Support Files/Pods-SpokestackTrayExample/Pods-SpokestackTrayExample.debug.xcconfig"; sourceTree = "<group>"; };
-		668ACDD0614E1272D3DE20CA /* Pods_SpokestackTray.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SpokestackTray.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		297656FD510776C9D1184EA5 /* libPods-SpokestackTray.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SpokestackTray.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		87FC003E72C94E9132651FEC /* Pods-SpokestackTray.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SpokestackTray.release.xcconfig"; path = "Target Support Files/Pods-SpokestackTray/Pods-SpokestackTray.release.xcconfig"; sourceTree = "<group>"; };
 		E062E9BE5D7DD5E1411BE356 /* Pods-SpokestackTray.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SpokestackTray.debug.xcconfig"; path = "Target Support Files/Pods-SpokestackTray/Pods-SpokestackTray.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -139,7 +135,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DFEDD43442DF7117BB281D52 /* Pods_SpokestackTray.framework in Frameworks */,
+				5B91C9C2EDA5AF4DE894E4CB /* libPods-SpokestackTray.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -148,7 +144,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0159915F24E0E9F7005A2B13 /* SpokestackTray.framework in Frameworks */,
-				B59E16733F9B6BED731825FC /* Pods_SpokestackTrayExample.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -366,8 +361,6 @@
 			children = (
 				E062E9BE5D7DD5E1411BE356 /* Pods-SpokestackTray.debug.xcconfig */,
 				87FC003E72C94E9132651FEC /* Pods-SpokestackTray.release.xcconfig */,
-				413BA4A35365319D6CBD9543 /* Pods-SpokestackTrayExample.debug.xcconfig */,
-				25A680A3AED45A9F3CAA4A22 /* Pods-SpokestackTrayExample.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -375,8 +368,7 @@
 		9B349F9C515068DCD2153A63 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				668ACDD0614E1272D3DE20CA /* Pods_SpokestackTray.framework */,
-				15E151C7C2D9F039B9E15238 /* Pods_SpokestackTrayExample.framework */,
+				297656FD510776C9D1184EA5 /* libPods-SpokestackTray.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -418,7 +410,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 01BA9A7324DDD59400EE9060 /* Build configuration list for PBXNativeTarget "SpokestackTrayExample" */;
 			buildPhases = (
-				158834E1BE2DC1E887ABC309 /* [CP] Check Pods Manifest.lock */,
 				01BA9A5E24DDD59300EE9060 /* Sources */,
 				01BA9A5F24DDD59300EE9060 /* Frameworks */,
 				01BA9A6024DDD59300EE9060 /* Resources */,
@@ -496,28 +487,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		158834E1BE2DC1E887ABC309 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-SpokestackTrayExample-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
 		F2C1D15407736F76F04DEAE8 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -673,7 +642,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -731,7 +700,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -762,7 +731,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.spokestack.SpokestackTray;
+				PRODUCT_BUNDLE_IDENTIFIER = io.spokestack.SpokestackTray;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -790,7 +759,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.spokestack.SpokestackTray;
+				PRODUCT_BUNDLE_IDENTIFIER = io.spokestack.SpokestackTray;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -800,7 +769,6 @@
 		};
 		01BA9A7424DDD59400EE9060 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 413BA4A35365319D6CBD9543 /* Pods-SpokestackTrayExample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -821,7 +789,6 @@
 		};
 		01BA9A7524DDD59400EE9060 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 25A680A3AED45A9F3CAA4A22 /* Pods-SpokestackTrayExample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
