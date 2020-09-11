@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name = 'SpokestackTray-iOS'
   s.module_name = 'SpokestackTray'
-  s.version = '0.0.1'
+  s.version = '0.0.3'
   s.license = 'Apache'
   s.summary = 'Spokestack provides an extensible speech UI interface'
   s.homepage = 'https://www.spokestack.io'
@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   s.exclude_files = 'SpokestackTrayExample/*.*', 'SpokestackTray/Info.plist'
   s.source_files = 'SpokestackTray/**/*.{swift,h,m,c}'
   s.public_header_files = 'SpokestackTray/SpokestackTray.h'
-  s.dependency 'Spokestack'
+  s.dependency "Spokestack-iOS", "13.1.4"
   s.static_framework = true
 end
 
