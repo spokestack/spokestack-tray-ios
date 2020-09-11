@@ -295,7 +295,7 @@ final class SpeechController: NSObject, ObservableObject {
         }
     }
     
-    /// Prodnounced Speech to Text
+    /// Plays text to speech
     /// - Returns: Void
     func synthesizeSpeech(_ input: String) -> Void {
     
@@ -330,7 +330,7 @@ extension SpeechController: NLUDelegate {
             let errorEvent: TrayListenerEvent = TrayListenerEvent()
             
             errorEvent.type = .error
-            errorEvent.error = "THere was wasn't a IntentResult found for \(result.utterance)"
+            errorEvent.error = "No IntentResult found for \(result.utterance)"
             
             self.configuration.onEvent?(errorEvent)
             return

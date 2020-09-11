@@ -87,7 +87,7 @@ class ViewController: UIViewController {
         let configuration: TrayConfiguration = TrayConfiguration()
         
         /// When the tray is opened for the first time this is the synthesized
-        /// greeting that will be "said" to the user
+        /// greeting that will be spoken to the user
         
         configuration.greeting = """
         Welcome! This example uses models for Minecraft. Try saying, \"How do I make a castle?\"

@@ -28,7 +28,7 @@ open class TrayConfiguration {
     /// - Returns CGFloat
     open var buttonWidth: CGFloat = 60.0
     
-    /// Indicates whether or not the piple should synthesize the initial greeting
+    /// Indicates whether to speak the initial greeting
     /// Defaults to`true`
     /// - Returns Bool
     open var sayGreeting: Bool = true
@@ -43,7 +43,7 @@ open class TrayConfiguration {
     /// - Returns String
     open var cliendId: String = "f0bc990c-e9db-4a0c-a2b1-6a6395a3d97e"
     
-    /// Client Secret for requests
+    /// Client Secret for requests to Spokestack APIs like TTS and ASR.
     /// Defaults to `5BD5483F573D691A15CFA493C1782F451D4BD666E39A9E7B2EBE287E6A72C6B6`
     /// - Returns String
     open var clientSecret: String = "5BD5483F573D691A15CFA493C1782F451D4BD666E39A9E7B2EBE287E6A72C6B6"
@@ -70,10 +70,10 @@ open class TrayConfiguration {
 
     /// Callback that is used to edit any of the transcripts before it is classified by the `NLU`
     /// Defaults `nil`
-    /// - Returns ((_ transscript: String) -> String)?
-    open var editTranscript: ((_ transscript: String) -> String)?
+    /// - Returns ((_ transcript: String) -> String)?
+    open var editTranscript: ((_ transcript: String) -> String)?
     
-    /// Array of nodss that will trigger the closing of the tray
+    /// Array of nodes that will trigger the closing of the tray
     /// Defaults to `[]`
     /// - Returns Array<String>
     open var exitNodes: Array<String> = []
@@ -91,7 +91,7 @@ open class TrayConfiguration {
         .blue
     ]
     
-    /// Indicator on whether or not to the devices haptic feedback feature
+    /// Indicator on whether or not to the device's  haptic feedback feature
     /// Defaults  to `true`
     /// - Returns: Bool
     open var useHaptic: Bool = true
