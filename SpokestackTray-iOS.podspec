@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   s.exclude_files = 'SpokestackTrayExample/*.*', 'SpokestackTray/Info.plist'
   s.source_files = 'SpokestackTray/**/*.{swift,h,m,c}'
   s.public_header_files = 'SpokestackTray/SpokestackTray.h'
-  s.dependency "Spokestack-iOS", "13.1.4"
+  s.dependency 'Spokestack'
   s.static_framework = true
 end
 
