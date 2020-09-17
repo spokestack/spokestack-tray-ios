@@ -9,6 +9,7 @@ import Foundation
 #if !os(iOS)
 import OSLog
 #endif
+import os
 
 public class LogController {
     
