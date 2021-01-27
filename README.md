@@ -1,10 +1,10 @@
-# spokestack-tray-ios
+
+<a href="https://www.spokestack.io/blog/integrating-spokestack-in-ios" title="Integrating Spokestack in iOS">![Spokestack Tray iOS](./images/spokestack-tray-ios.png)</a>
 
 A native iOS library for adding Spokestack to any iOS app.
 
 
 ## Installation
-
 
 ### Edit Podfile
 
